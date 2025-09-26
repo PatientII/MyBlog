@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的博客 - 留言板</title>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 配置Tailwind自定义颜色和字体 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#64748B',
+                        accent: '#F97316',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .transition-custom {
+                transition: all 0.3s ease;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+    <!-- 导航栏 -->
+    <header class="bg-white shadow-sm sticky top-0 z-50 transition-all duration-300" id="navbar">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="#" class="flex items-center space-x-2">
+                <i class="fa fa-pencil-square-o text-2xl text-primary"></i>
+                <span class="text-xl font-bold text-dark">我的博客</span>
+            </a>
+            
+            <nav class="hidden md:flex space-x-8">
+                <a href="#" class="text-gray-600 hover:text-primary transition-custom">首页</a>
+                <a href="#" class="text-gray-600 hover:text-primary transition-custom">文章</a>
+                <a href="#" class="text-primary font-medium border-b-2 border-primary pb-1">留言板</a>
+                <a href="#" class="text-gray-600 hover:text-primary transition-custom">关于我</a>
+            </nav>
+            
+            <button class="md:hidden text-gray-600 focus:outline-none" id="menuToggle">
+                <i class="fa fa-bars text-xl"></i>
+            </button>
+        </div>
+        
+        <!-- 移动端菜单 -->
+        <div class="md:hidden hidden bg-white border-t" id="mobileMenu">
+            <div class="container mx-auto px-4 py-2 flex flex-col space-y-3">
+                <a href="#" class="py-2 text-gray-600 hover:text-primary transition-custom">首页</a>
+                <a href="#" class="py-2 text-gray-600 hover:text-primary transition-custom">文章</a>
+                <a href="#" class="py-2 text-primary font-medium">留言板</a>
+                <a href="#" class="py-2 text-gray-600 hover:text-primary transition-custom">关于我</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 页面标题区 -->
+    <section class="bg-gradient-to-r from-primary to-blue-700 text-white py-16 md:py-24">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-3xl md:text-5xl font-bold mb-4 text-shadow">留言板</h1>
+            <p class="text-lg md:text-xl max-w-2xl mx-auto opacity-90">
+                欢迎留下您的想法和建议，我会尽快回复您
+            </p>
+        </div>
+    </section>
+
+    <!-- 主要内容区 -->
+    <main class="container mx-auto px-4 py-12">
+        <div class="max-w-4xl mx-auto">
+            <!-- 留言表单 -->
+            <section class="bg-white rounded-xl shadow-md p-6 md:p-8 mb-12 transform transition-all hover:shadow-lg">
+                <h2 class="text-2xl font-bold mb-6 text-dark flex items-center">
+                    <i class="fa fa-comment-o text-primary mr-3"></i>
+                    写下您的留言
+                </h2>
+                
+                <form id="guestbookForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
+                                您的姓名 <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                                    <i class="fa fa-user"></i>
+                                </span>
+                                <input 
+                                    type="text" 
+                                    id="name" 
+                                    name="name" 
+                                    class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom"
+                                    placeholder="请输入您的姓名"
+                                    required
+                                >
+                                <div class="hidden error-message text-red-500 text-sm mt-1">
+                                    <i class="fa fa-exclamation-circle mr-1"></i>
+                                    <span>请输入您的姓名</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+                                电子邮箱 <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                                    <i class="fa fa-envelope"></i>
+                                </span>
+                                <input 
+                                    type="email" 
+                                    id="email" 
+                                    name="email" 
+                                    class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom"
+                                    placeholder="请输入您的邮箱"
+                                    required
+                                >
+                                <div class="hidden error-message text-red-500 text-sm mt-1">
+                                    <i class="fa fa-exclamation-circle mr-1"></i>
+                                    <span>请输入有效的电子邮箱</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">
+                            留言主题
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                                <i class="fa fa-tag"></i>
+                            </span>
+                            <input 
+                                type="text" 
+                                id="subject" 
+                                name="subject" 
+                                class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom"
+                                placeholder="请输入留言主题（可选）"
+                            >
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="message" class="block text-sm font-medium text-gray-700 mb-1">
+                            留言内容 <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <textarea 
+                                id="message" 
+                                name="message" 
+                                rows="5" 
+                                class="w-full pl-3 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom resize-none"
+                                placeholder="请输入您的留言内容..."
+                                required
+                            ></textarea>
+                            <div class="absolute right-3 bottom-3 text-sm text-gray-500">
+                                <span id="charCount">0</span> / 500
+                            </div>
+                            <div class="hidden error-message text-red-500 text-sm mt-1">
+                                <i class="fa fa-exclamation-circle mr-1"></i>
+                                <span>请输入留言内容（至少10个字符）</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input 
+                                id="agreement" 
+                                name="agreement" 
+                                type="checkbox" 
+                                class="w-4 h-4 border border-gray-300 rounded focus:ring-primary"
+                                required
+                            >
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="agreement" class="text-gray-600">
+                                我同意公开显示这条留言 <span class="text-red-500">*</span>
+                            </label>
+                            <div class="hidden error-message text-red-500 text-sm mt-1">
+                                <i class="fa fa-exclamation-circle mr-1"></i>
+                                <span>请同意公开显示留言</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end">
+                        <button 
+                            type="submit" 
+                            class="bg-primary hover:bg-primary/90 text-white font-medium py-2 px-6 rounded-lg transition-custom flex items-center shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                        >
+                            <i class="fa fa-paper-plane mr-2"></i>
+                            提交留言
+                        </button>
+                    </div>
+                </form>
+            </section>
+            
+            <!-- 留言列表 -->
+            <section>
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-dark flex items-center">
+                        <i class="fa fa-comments text-primary mr-3"></i>
+                        留言列表
+                    </h2>
+                    <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm" id="messageCount">
+                        共有 <span>0</span> 条留言
+                    </span>
+                </div>
+                
+                <!-- 留言筛选 -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                    <div class="relative w-full sm:w-auto">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                            <i class="fa fa-search"></i>
+                        </span>
+                        <input 
+                            type="text" 
+                            id="searchMessages" 
+                            class="w-full sm:w-64 pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom"
+                            placeholder="搜索留言..."
+                        >
+                    </div>
+                    
+                    <div class="flex space-x-2 w-full sm:w-auto">
+                        <button id="sortByNewest" class="bg-primary text-white px-4 py-2 rounded-lg text-sm transition-custom">
+                            最新留言
+                        </button>
+                        <button id="sortByOldest" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm transition-custom">
+                            最早留言
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 留言列表容器 -->
+                <div id="messagesContainer" class="space-y-6">
+                    <!-- 初始提示 -->
+                    <div id="noMessages" class="text-center py-16 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                        <i class="fa fa-comment-o text-5xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500">还没有留言，快来成为第一个留言的人吧！</p>
+                    </div>
+                    
+                    <!-- 留言将通过JavaScript动态添加到这里 -->
+                </div>
+                
+                <!-- 加载更多按钮 -->
+                <div class="mt-8 text-center" id="loadMoreContainer" style="display: none;">
+                    <button id="loadMoreBtn" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-6 rounded-lg transition-custom">
+                        <i class="fa fa-refresh mr-2"></i>
+                        加载更多
+                    </button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-12 mt-20">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fa fa-pencil-square-o text-primary mr-2"></i>
+                        我的博客
+                    </h3>
+                    <p class="text-gray-400 mb-4">
+                        分享生活点滴，记录技术成长，欢迎来访交流。
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-primary transition-custom">
+                            <i class="fa fa-github text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition-custom">
+                            <i class="fa fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition-custom">
+                            <i class="fa fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition-custom">
+                            <i class="fa fa-instagram text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">快速链接</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition-custom">首页</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition-custom">文章归档</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition-custom">标签分类</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition-custom">留言板</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition-custom">关于我</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">订阅博客</h3>
+                    <p class="text-gray-400 mb-4">输入您的邮箱，获取最新文章推送</p>
+                    <form class="flex">
+                        <input 
+                            type="email" 
+                            placeholder="您的邮箱地址" 
+                            class="px-4 py-2 rounded-l-lg w-full focus:outline-none text-gray-800"
+                        >
+                        <button type="submit" class="bg-primary hover:bg-primary/90 px-4 py-2 rounded-r-lg transition-custom">
+                            <i class="fa fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500">
+                <p>&copy; 2023 我的博客. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 成功提示弹窗 -->
+    <div id="successToast" class="fixed bottom-6 right-6 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center z-50">
+        <i class="fa fa-check-circle mr-2"></i>
+        <span>留言提交成功！</span>
+    </div>
+
+    <script>
+        // DOM元素
+        const navbar = document.getElementById('navbar');
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const guestbookForm = document.getElementById('guestbookForm');
+        const nameInput = document.getElementById('name');
+        const emailInput = document.getElementById('email');
+        const messageInput = document.getElementById('message');
+        const agreementCheckbox = document.getElementById('agreement');
+        const charCount = document.getElementById('charCount');
+        const messagesContainer = document.getElementById('messagesContainer');
+        const noMessages = document.getElementById('noMessages');
+        const messageCount = document.getElementById('messageCount').querySelector('span');
+        const searchMessages = document.getElementById('searchMessages');
+        const sortByNewest = document.getElementById('sortByNewest');
+        const sortByOldest = document.getElementById('sortByOldest');
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        const loadMoreContainer = document.getElementById('loadMoreContainer');
+        const successToast = document.getElementById('successToast');
+        
+        // 常量
+        const MAX_MESSAGE_LENGTH = 500;
+        const MESSAGES_PER_PAGE = 5;
+        
+        // 状态变量
+        let currentPage = 1;
+        let allMessages = [];
+        let filteredMessages = [];
+        let sortOrder = 'newest'; // newest 或 oldest
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 加载本地存储的留言
+            loadMessagesFromStorage();
+            
+            // 渲染留言
+            renderMessages();
+            
+            // 事件监听
+            setupEventListeners();
+        });
+        
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 导航栏滚动效果
+            window.addEventListener('scroll', handleScroll);
+            
+            // 移动端菜单切换
+            menuToggle.addEventListener('click', toggleMobileMenu);
+            
+            // 表单提交
+            guestbookForm.addEventListener('submit', handleFormSubmit);
+            
+            // 字符计数
+            messageInput.addEventListener('input', updateCharCount);
+            
+            // 输入验证
+            nameInput.addEventListener('blur', () => validateField(nameInput, validateName));
+            emailInput.addEventListener('blur', () => validateField(emailInput, validateEmail));
+            messageInput.addEventListener('blur', () => validateField(messageInput, validateMessage));
+            agreementCheckbox.addEventListener('change', () => validateField(agreementCheckbox, validateAgreement));
+            
+            // 搜索留言
+            searchMessages.addEventListener('input', handleSearch);
+            
+            // 排序留言
+            sortByNewest.addEventListener('click', () => setSortOrder('newest'));
+            sortByOldest.addEventListener('click', () => setSortOrder('oldest'));
+            
+            // 加载更多
+            loadMoreBtn.addEventListener('click', loadMoreMessages);
+        }
+        
+        // 处理滚动事件 - 导航栏效果
+        function handleScroll() {
+            if (window.scrollY > 50) {
+                navbar.classList.add('py-2', 'shadow');
+                navbar.classList.remove('py-4');
+            } else {
+                navbar.classList.add('py-4');
+                navbar.classList.remove('py-2', 'shadow');
+            }
+        }
+        
+        // 切换移动端菜单
+        function toggleMobileMenu() {
+            mobileMenu.classList.toggle('hidden');
+        }
+        
+        // 更新字符计数
+        function updateCharCount() {
+            const length = messageInput.value.length;
+            charCount.textContent = length;
+            
+            // 超过最大长度时截断
+            if (length > MAX_MESSAGE_LENGTH) {
+                messageInput.value = messageInput.value.substring(0, MAX_MESSAGE_LENGTH);
+                charCount.textContent = MAX_MESSAGE_LENGTH;
+            }
+            
+            // 视觉提示
+            if (length > MAX_MESSAGE_LENGTH * 0.8) {
+                charCount.classList.add('text-amber-500');
+            } else {
+                charCount.classList.remove('text-amber-500');
+            }
+            
+            if (length === MAX_MESSAGE_LENGTH) {
+                charCount.classList.add('text-red-500');
+            } else {
+                charCount.classList.remove('text-red-500');
+            }
+        }
+        
+        // 处理表单提交
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            // 验证所有字段
+            const isNameValid = validateField(nameInput, validateName);
+            const isEmailValid = validateField(emailInput, validateEmail);
+            const isMessageValid = validateField(messageInput, validateMessage);
+            const isAgreementValid = validateField(agreementCheckbox, validateAgreement);
+            
+            // 如果所有验证通过
+            if (isNameValid && isEmailValid && isMessageValid && isAgreementValid) {
+                // 创建新留言对象
+                const newMessage = {
+                    id: Date.now().toString(), // 使用时间戳作为唯一ID
+                    name: nameInput.value.trim(),
+                    email: emailInput.value.trim(),
+                    subject: document.getElementById('subject').value.trim() || '无主题',
+                    message: messageInput.value.trim(),
+                    date: new Date().toISOString(),
+                    avatar: generateAvatarUrl(emailInput.value.trim())
+                };
+                
+                // 添加到留言数组并保存
+                allMessages.unshift(newMessage); // 添加到开头
+                saveMessagesToStorage();
+                
+                // 重新渲染留言
+                currentPage = 1;
+                applyFiltersAndSort();
+                renderMessages();
+                
+                // 重置表单
+                guestbookForm.reset();
+                updateCharCount();
+                
+                // 显示成功提示
+                showSuccessToast();
+            }
+        }
+        
+        // 显示成功提示
+        function showSuccessToast() {
+            successToast.classList.remove('translate-y-20', 'opacity-0');
+            successToast.classList.add('translate-y-0', 'opacity-100');
+            
+            // 3秒后隐藏
+            setTimeout(() => {
+                successToast.classList.remove('translate-y-0', 'opacity-100');
+                successToast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+        
+        // 生成头像URL（使用Gravatar）
+        function generateAvatarUrl(email) {
+            const hash = CryptoJS.MD5(email.trim().toLowerCase()).toString();
+            return `https://www.gravatar.com/avatar/${hash}?d=identicon&s=64`;
+        }
+        
+        // 验证函数
+        function validateName(value) {
+            return value.trim().length >= 2;
+        }
+        
+        function validateEmail(value) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(value.trim());
+        }
+        
+        function validateMessage(value) {
+            return value.trim().length >= 10;
+        }
+        
+        function validateAgreement(checked) {
+            return checked;
+        }
+        
+        // 验证单个字段
+        function validateField(element, validator) {
+            const value = element.type === 'checkbox' ? element.checked : element.value;
+            const errorElement = element.parentElement.querySelector('.error-message');
+            
+            if (validator(value)) {
+                // 验证通过
+                element.classList.remove('border-red-500');
+                element.classList.add('border-green-500');
+                if (errorElement) errorElement.classList.add('hidden');
+                return true;
+            } else {
+                // 验证失败
+                element.classList.remove('border-green-500');
+                element.classList.add('border-red-500');
+                if (errorElement) errorElement.classList.remove('hidden');
+                return false;
+            }
+        }
+        
+        // 从本地存储加载留言
+        function loadMessagesFromStorage() {
+            const storedMessages = localStorage.getItem('guestbookMessages');
+            if (storedMessages) {
+                allMessages = JSON.parse(storedMessages);
+            } else {
+                // 添加一些示例数据
+                allMessages = [
+                    {
+                        id: '1',
+                        name: '张三',
+                        email: 'zhangsan@example.com',
+                        subject: '很棒的博客',
+                        message: '你的博客内容很有深度，学到了很多东西，希望能看到更多关于前端开发的文章。',
+                        date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+                        avatar: 'https://www.gravatar.com/avatar/zhangsan?d=identicon&s=64'
+                    },
+                    {
+                        id: '2',
+                        name: '李四',
+                        email: 'lisi@example.com',
+                        subject: '关于React的问题',
+                        message: '你好，我在使用React Hooks时遇到了一些问题，特别是useEffect的依赖数组处理，不知道你有没有相关的经验可以分享？',
+                        date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+                        avatar: 'https://www.gravatar.com/avatar/lisi?d=identicon&s=64'
+                    }
+                ];
+                saveMessagesToStorage();
+            }
+        }
+        
+        // 保存留言到本地存储
+        function saveMessagesToStorage() {
+            localStorage.setItem('guestbookMessages', JSON.stringify(allMessages));
+        }
+        
+        // 处理搜索
+        function handleSearch() {
+            currentPage = 1;
+            applyFiltersAndSort();
+            renderMessages();
+        }
+        
+        // 设置排序方式
+        function setSortOrder(order) {
+            sortOrder = order;
+            
+            // 更新按钮样式
+            if (order === 'newest') {
+                sortByNewest.classList.add('bg-primary', 'text-white');
+                sortByNewest.classList.remove('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
+                
+                sortByOldest.classList.add('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
+                sortByOldest.classList.remove('bg-primary', 'text-white');
+            } else {
+                sortByOldest.classList.add('bg-primary', 'text-white');
+                sortByOldest.classList.remove('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
+                
+                sortByNewest.classList.add('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
+                sortByNewest.classList.remove('bg-primary', 'text-white');
+            }
+            
+            currentPage = 1;
+            applyFiltersAndSort();
+            renderMessages();
+        }
+        
+        // 应用筛选和排序
+        function applyFiltersAndSort() {
+            const searchTerm = searchMessages.value.toLowerCase().trim();
+            
+            // 筛选
+            filteredMessages = allMessages.filter(message => 
+                message.name.toLowerCase().includes(searchTerm) ||
+                message.subject.toLowerCase().includes(searchTerm) ||
+                message.message.toLowerCase().includes(searchTerm)
+            );
+            
+            // 排序
+            filteredMessages.sort((a, b) => {
+                const dateA = new Date(a.date).getTime();
+                const dateB = new Date(b.date).getTime();
+                
+                return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+            });
+        }
+        
+        // 渲染留言
+        function renderMessages() {
+            applyFiltersAndSort();
+            
+            // 更新留言计数
+            messageCount.textContent = filteredMessages.length;
+            
+            // 显示/隐藏"没有留言"提示
+            if (filteredMessages.length === 0) {
+                noMessages.classList.remove('hidden');
+                loadMoreContainer.style.display = 'none';
+                return;
+            } else {
+                noMessages.classList.add('hidden');
+            }
+            
+            // 计算分页
+            const startIndex = (currentPage - 1) * MESSAGES_PER_PAGE;
+            const endIndex = startIndex + MESSAGES_PER_PAGE;
+            const messagesToRender = filteredMessages.slice(startIndex, endIndex);
+            
+            // 清空容器（保留"没有留言"提示）
+            Array.from(messagesContainer.children).forEach(child => {
+                if (child.id !== 'noMessages') {
+                    messagesContainer.removeChild(child);
+                }
+            });
+            
+            // 添加留言
+            messagesToRender.forEach(message => {
+                const messageElement = createMessageElement(message);
+                messagesContainer.appendChild(messageElement);
+            });
+            
+            // 显示/隐藏加载更多按钮
+            if (endIndex < filteredMessages.length) {
+                loadMoreContainer.style.display = 'block';
+            } else {
+                loadMoreContainer.style.display = 'none';
+            }
+            
+            // 如果不是第一页，滚动到留言区域
+            if (currentPage > 1) {
+                messagesContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+        
+        // 创建留言元素
+        function createMessageElement(message) {
+            const div = document.createElement('div');
+            div.className = 'bg-white rounded-xl shadow-sm p-6 transition-all hover:shadow-md';
+            div.setAttribute('data-id', message.id);
+            
+            // 格式化日期
+            const date = new Date(message.date);
+            const formattedDate = date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            div.innerHTML = `
+                <div class="flex items-start mb-4">
+                    <img src="${message.avatar}" alt="${message.name}的头像" class="w-12 h-12 rounded-full object-cover mr-4">
+                    <div>
+                        <h3 class="font-semibold text-lg">${escapeHtml(message.name)}</h3>
+                        <p class="text-gray-500 text-sm">${formattedDate}</p>
+                    </div>
+                </div>
+                
+                ${message.subject ? `<div class="mb-3">
+                    <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                        ${escapeHtml(message.subject)}
+                    </span>
+                </div>` : ''}
+                
+                <div class="mb-4 text-gray-700">
+                    ${escapeHtml(message.message).replace(/\n/g, '<br>')}
+                </div>
+                
+                <div class="flex justify-end pt-2 border-t border-gray-100">
+                    <button class="delete-message text-gray-400 hover:text-red-500 transition-custom text-sm flex items-center" data-id="${message.id}">
+                        <i class="fa fa-trash-o mr-1"></i> 删除
+                    </button>
+                </div>
+            `;
+            
+            // 添加删除事件
+            div.querySelector('.delete-message').addEventListener('click', (e) => {
+                e.preventDefault();
+                if (confirm('确定要删除这条留言吗？')) {
+                    deleteMessage(message.id);
+                }
+            });
+            
+            return div;
+        }
+        
+        // 加载更多留言
+        function loadMoreMessages() {
+            currentPage++;
+            renderMessages();
+        }
+        
+        // 删除留言
+        function deleteMessage(id) {
+            allMessages = allMessages.filter(message => message.id !== id);
+            saveMessagesToStorage();
+            
+            // 如果删除后当前页没有数据，回到上一页
+            if (filteredMessages.length <= (currentPage - 1) * MESSAGES_PER_PAGE && currentPage > 1) {
+                currentPage--;
+            }
+            
+            renderMessages();
+        }
+        
+        // HTML转义函数，防止XSS攻击
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+    </script>
+    
+    <!-- 引入CryptoJS用于生成Gravatar头像的MD5哈希 -->
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
+</body>
+</html>
